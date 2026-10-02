@@ -115,6 +115,15 @@ export default function ChatPage() {
     setTyping(true);
     setShowForm(false);
 
+    // ── Update sidebar title immediately on first message ──────
+    if (currentSessionTitle === "New conversation") {
+      const shortTitle = content.length > 45 ? content.slice(0, 45) + "…" : content;
+      setSessions(prev => prev.map(s =>
+        s.id === activeSession.id ? { ...s, title: shortTitle } : s
+      ));
+      setActiveSession(prev => prev ? { ...prev, title: shortTitle } : prev);
+    }
+
     const optimistic: ChatMessage = {
       id: `opt-${Date.now()}`,
       sessionId: activeSession.id,
@@ -134,15 +143,6 @@ export default function ChatPage() {
       }
 
       const { userMessage, assistantMessage, booking, fallbackForm } = res.data;
-
-      // Update session title if still default — use first message content as title
-      if (currentSessionTitle === "New conversation") {
-        const shortTitle = content.length > 45 ? content.slice(0, 45) + "…" : content;
-        setSessions(prev => prev.map(s =>
-          s.id === activeSession.id ? { ...s, title: shortTitle } : s
-        ));
-        setActiveSession(prev => prev ? { ...prev, title: shortTitle } : prev);
-      }
 
       // Move active session to top of sidebar (most recent first)
       setSessions(prev => {
